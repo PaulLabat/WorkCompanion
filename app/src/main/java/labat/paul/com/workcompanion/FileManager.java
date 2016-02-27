@@ -6,6 +6,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.util.Pair;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -18,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -37,25 +39,25 @@ public class FileManager {
         return ourInstance;
     }
 
-    public void saveDateArrivee(@NonNull Context context, @NonNull Date date){
+    public void saveDateArrivee(@NonNull Context context, @NonNull Date date) {
 
         String fileName = getFileName(date);
 
-        if(checkIfFileExist(context, date)) {
+        if (checkIfFileExist(context, date)) {
             //File exist
             Log.d(TAG, "file exist");
             FileInputStream inputStream;
-            String tmp="";
+            String tmp = "";
 
             try {
                 inputStream = context.openFileInput(fileName);
-                BufferedReader br = new BufferedReader(new InputStreamReader(inputStream,"utf8"));
+                BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "utf8"));
                 String str;
                 while ((str = br.readLine()) != null) {
                     tmp += str;
                 }
                 inputStream.close();
-            }catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             //create json to parse
@@ -68,15 +70,15 @@ public class FileManager {
                 jsonArray = null;
             }
             boolean exist = false;
-            if(jsonArray != null){
-                for (int i = 0; i < jsonArray.length(); i++){
+            if (jsonArray != null) {
+                for (int i = 0; i < jsonArray.length(); i++) {
                     try {
-                        if(getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))){
-                            try{
+                        if (getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
+                            try {
                                 jsonArray.getJSONObject(i).get(DATE_ARRIVEE);
                                 exist = true;
                                 Log.d(TAG, "date arrivee exist deja");
-                            }catch (JSONException e){
+                            } catch (JSONException e) {
                                 Log.e(TAG, "date_arrivee does not exist");
                             }
                         }
@@ -85,7 +87,7 @@ public class FileManager {
                     }
                 }
 
-                if(!exist) {
+                if (!exist) {
                     //if day not saved yet
                     JSONObject currentDay = new JSONObject();
                     try {
@@ -97,7 +99,7 @@ public class FileManager {
                     }
                 }
 
-                if(!exist) {
+                if (!exist) {
                     //writing in file
                     FileOutputStream outputStream;
 
@@ -113,14 +115,13 @@ public class FileManager {
             }
 
 
-
-        }else{
+        } else {
             Log.d(TAG, "file does not exist, Creating it...");
-            File file =new File(context.getFilesDir(), fileName);
+            File file = new File(context.getFilesDir(), fileName);
             try {
                 boolean res = file.createNewFile();
                 Log.d(TAG, "file created : " + res);
-                if(res){
+                if (res) {
                     JSONArray data = new JSONArray();
                     JSONObject day = new JSONObject();
                     try {
@@ -159,22 +160,22 @@ public class FileManager {
     }
 
 
-    public void saveDateDepart(@NonNull Context context, @NonNull Date date){
+    public void saveDateDepart(@NonNull Context context, @NonNull Date date) {
 
         String fileName = getFileName(date);
         //Read file
         FileInputStream inputStream;
-        String tmp="";
+        String tmp = "";
 
         try {
             inputStream = context.openFileInput(fileName);
-            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream,"utf8"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "utf8"));
             String str;
             while ((str = br.readLine()) != null) {
                 tmp += str;
             }
             inputStream.close();
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         //create json to parse
@@ -186,14 +187,14 @@ public class FileManager {
             Log.e(TAG, "Could not parse json file: " + fileName);
             jsonArray = null;
         }
-        if(jsonArray != null){
-            for (int i = 0; i < jsonArray.length(); i++){
+        if (jsonArray != null) {
+            for (int i = 0; i < jsonArray.length(); i++) {
                 try {
-                    if(getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))){
-                        try{
+                    if (getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
+                        try {
                             jsonArray.getJSONObject(i).getLong(DATE_DEPART);
                             Log.d(TAG, "date depart exist deja");
-                        }catch (JSONException e){
+                        } catch (JSONException e) {
                             Log.d(TAG, "date depart n'existe pas, writing it");
                             jsonArray.getJSONObject(i).put(DATE_DEPART, date.getTime());
                             long milisec = date.getTime() - jsonArray.getJSONObject(i).getLong(DATE_ARRIVEE);
@@ -222,18 +223,18 @@ public class FileManager {
     }
 
 
-    private boolean checkIfFileExist(@NonNull Context context, @NonNull Date date){
+    private boolean checkIfFileExist(@NonNull Context context, @NonNull Date date) {
         File file = new File(context.getFilesDir(), getFileName(date));
         return file.exists();
     }
 
 
-    private String getFileName(@NonNull Date date){
+    private String getFileName(@NonNull Date date) {
         String fileName;
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         fileName = String.valueOf(calendar.get(Calendar.YEAR));
-        fileName += "-"+String.valueOf(calendar.get(Calendar.MONTH));
+        fileName += "-" + String.valueOf(calendar.get(Calendar.MONTH));
         fileName += ".json";
         return fileName;
 
@@ -241,14 +242,97 @@ public class FileManager {
     }
 
 
-    private String getDay(@NonNull Date date){
+    private String getDay(@NonNull Date date) {
         String fileName;
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         fileName = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
-        fileName += "-"+String.valueOf(calendar.get(Calendar.MONTH));
+        fileName += "-" + String.valueOf(calendar.get(Calendar.MONTH));
         return fileName;
     }
 
+    private String getHour(@NonNull Date date){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        String hour = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
+        hour += ":";
+        if(calendar.get(Calendar.MINUTE) < 10){
+            hour += "0";
+        }
+        hour += String.valueOf(calendar.get(Calendar.MINUTE));
+        return hour;
 
+    }
+
+    public String getFullDate(@NonNull Long l){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date(l));
+        String tmp = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
+        tmp += "-";
+        tmp += String.valueOf(calendar.get(Calendar.MONTH));
+        tmp += "-";
+        tmp += String.valueOf(calendar.get(Calendar.YEAR));
+        return tmp;
+
+
+    }
+
+
+
+
+    public Pair<String, String> getCurrentDayToDisplay(@NonNull Context context) {
+        String dateBegin = "-", dateEnd = "-";
+
+
+        Timestamp stamp = new Timestamp(System.currentTimeMillis());
+        Date date = new Date(stamp.getTime());
+
+        String fileName = getFileName(date);
+
+        if (checkIfFileExist(context, date)) {
+            FileInputStream inputStream;
+            String tmp = "";
+
+            try {
+                inputStream = context.openFileInput(fileName);
+                BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "utf8"));
+                String str;
+                while ((str = br.readLine()) != null) {
+                    tmp += str;
+                }
+                inputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //create json to parse
+            JSONArray jsonArray;
+            try {
+                jsonArray = new JSONArray(tmp);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.e(TAG, "Could not parse json file: " + fileName);
+                jsonArray = null;
+            }
+            if (jsonArray != null) {
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    try {
+                        if (getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
+                            try {
+                                dateBegin = getHour(new Date((long) jsonArray.getJSONObject(i).get(DATE_ARRIVEE)));
+
+                                dateEnd = getHour(new Date((long) jsonArray.getJSONObject(i).get(DATE_DEPART)));
+                            } catch (JSONException e) {
+                                Log.w(TAG, "date non trouvee");
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+        }
+
+        return new Pair<>(dateBegin, dateEnd);
+    }
 }

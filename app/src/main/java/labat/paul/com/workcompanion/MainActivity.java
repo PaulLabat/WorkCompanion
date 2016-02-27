@@ -5,6 +5,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Pair;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,34 +35,46 @@ public class MainActivity extends AppCompatActivity {
         arriveTextView = (TextView)findViewById(R.id.date_arrivee);
         departTextView = (TextView)findViewById(R.id.date_depart);
 
+        Pair<String, String> current = FileManager.getInstance().getCurrentDayToDisplay(this);
+        arriveTextView.setText(current.first);
+        departTextView.setText(current.second);
+
+        getSupportActionBar().setTitle(FileManager.getInstance().getFullDate(System.currentTimeMillis()));
+
+
 
         arrive.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Timestamp stamp = new Timestamp(System.currentTimeMillis());
-                Date date = new Date(stamp.getTime());
-                String text;
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(date);
-                text = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
-                text += ":"+String.valueOf(calendar.get(Calendar.MINUTE));
-                arriveTextView.setText(text);
-                FileManager.getInstance().saveDateArrivee(getApplicationContext(), date);
+                if (arriveTextView.getText().equals("-")) {
+                    Timestamp stamp = new Timestamp(System.currentTimeMillis());
+                    Date date = new Date(stamp.getTime());
+                    String text;
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(date);
+                    text = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
+                    text += ":" + String.valueOf(calendar.get(Calendar.MINUTE));
+
+                    arriveTextView.setText(text);
+                    FileManager.getInstance().saveDateArrivee(getApplicationContext(), date);
+                }
             }
         });
 
         depart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Timestamp stamp = new Timestamp(System.currentTimeMillis());
-                Date date = new Date(stamp.getTime());
-                String text;
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(date);
-                text = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
-                text += ":"+String.valueOf(calendar.get(Calendar.MINUTE));
-                departTextView.setText(text);
-                FileManager.getInstance().saveDateDepart(getApplicationContext(), date);
+                if(departTextView.getText().equals("-")) {
+                    Timestamp stamp = new Timestamp(System.currentTimeMillis());
+                    Date date = new Date(stamp.getTime());
+                    String text;
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(date);
+                    text = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
+                    text += ":" + String.valueOf(calendar.get(Calendar.MINUTE));
+                    departTextView.setText(text);
+                    FileManager.getInstance().saveDateDepart(getApplicationContext(), date);
+                }
             }
         });
 
