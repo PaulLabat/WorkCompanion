@@ -20,8 +20,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ListActivity"
+        <activity android:name=".ListMonth.ListActivity"
             android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme"/>
+        <activity android:name=".VisualizeMonth.VisualizeMonth"
+            android:parentActivityName=".ListMonth.ListActivity"
             android:theme="@style/AppTheme"/>
     </application>
 

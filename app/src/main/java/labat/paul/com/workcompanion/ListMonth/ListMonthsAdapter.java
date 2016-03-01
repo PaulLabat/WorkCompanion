@@ -1,6 +1,7 @@
-package labat.paul.com.workcompanion;
+package labat.paul.com.workcompanion.ListMonth;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import labat.paul.com.workcompanion.R;
+import labat.paul.com.workcompanion.VisualizeMonth.VisualizeMonth;
 
 
 public class ListMonthsAdapter extends RecyclerView.Adapter<ListMonthsAdapter.ViewHolder>{
@@ -55,6 +59,15 @@ public class ListMonthsAdapter extends RecyclerView.Adapter<ListMonthsAdapter.Vi
             super(itemView);
             dateMonth = (TextView)itemView.findViewById(R.id.month);
             cardView = (CardView)itemView.findViewById(R.id.card_view);
+            cardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, VisualizeMonth.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra("fileName", v.getTag(R.string.tag_cardview).toString());
+                    context.startActivity(intent);
+                }
+            });
         }
     }
 }

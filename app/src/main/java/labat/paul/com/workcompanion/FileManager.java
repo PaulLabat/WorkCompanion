@@ -30,7 +30,6 @@ public class FileManager {
 
     private static final String DATE_DEPART = "date_depart";
     private static final String DUREE_TOTAL = "duree_total";
-    private static final String DATA = "data";
     private static final String DAY = "day_date";
 
     private static FileManager ourInstance = new FileManager();
@@ -234,7 +233,11 @@ public class FileManager {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         fileName = String.valueOf(calendar.get(Calendar.YEAR));
-        fileName += "-" + String.valueOf(calendar.get(Calendar.MONTH));
+        if(calendar.get(Calendar.MONTH) < 10) {
+            fileName += "-0" + String.valueOf(calendar.get(Calendar.MONTH)+1);
+        }else {
+            fileName += "-" + String.valueOf(calendar.get(Calendar.MONTH)+1);
+        }
         fileName += ".json";
         return fileName;
 

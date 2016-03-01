@@ -2,8 +2,6 @@ package labat.paul.com.workcompanion;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Pair;
@@ -13,11 +11,11 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
+
+import labat.paul.com.workcompanion.ListMonth.ListActivity;
 
 public class MainActivity extends AppCompatActivity {
 
