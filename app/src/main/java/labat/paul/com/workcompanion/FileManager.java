@@ -267,9 +267,21 @@ public class FileManager {
     public String getFullDate(@NonNull Long l){
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date(l));
-        String tmp = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
-        tmp += "-";
-        tmp += String.valueOf(calendar.get(Calendar.MONTH));
+        int tmpInt = calendar.get(Calendar.DAY_OF_MONTH);
+        String tmp="";
+
+        if(tmpInt < 10){
+            tmp = "0" + String.valueOf(tmpInt) + "-";
+        }else{
+            tmp = String.valueOf(tmpInt) + "-";
+        }
+
+        tmpInt = calendar.get(Calendar.MONTH)+1;
+        if(tmpInt < 10){
+            tmp += "0" + String.valueOf(tmpInt);
+        }else{
+            tmp += String.valueOf(tmpInt);
+        }
         tmp += "-";
         tmp += String.valueOf(calendar.get(Calendar.YEAR));
         return tmp;

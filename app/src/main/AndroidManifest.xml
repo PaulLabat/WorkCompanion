@@ -20,6 +20,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ListActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme"/>
     </application>
 
 </manifest>
