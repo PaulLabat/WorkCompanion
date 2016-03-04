@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:key="lunch_time"
+        android:title="Pause déjeuner"
+        android:summary="@string/default_value_lunch"
+        android:entries="@array/choice_length"
+        android:entryValues="@array/choice_length_values"
+        android:defaultValue="@string/default_value_lunch"
+        android:dialogTitle="Sélectionner la durée de la pause déjeuner" />
+
+</PreferenceScreen>

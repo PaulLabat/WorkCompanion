@@ -26,6 +26,9 @@
         <activity android:name=".VisualizeMonth.VisualizeMonth"
             android:parentActivityName=".ListMonth.ListActivity"
             android:theme="@style/AppTheme"/>
+        <activity android:name=".Preferences.Settings"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme"/>
     </application>
 
 </manifest>

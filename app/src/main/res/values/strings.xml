@@ -2,4 +2,6 @@
     <string name="app_name">WorkCompanion</string>
     <string name="action_list">Liste des mois</string>
     <string name="tag_cardview">tag_cardview</string>
+
+    <string name="default_value_lunch">2</string>
 </resources>
