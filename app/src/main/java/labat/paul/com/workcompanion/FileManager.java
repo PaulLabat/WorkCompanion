@@ -6,13 +6,11 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.util.Pair;
 import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,36 +39,13 @@ public class FileManager {
         return ourInstance;
     }
 
-    public void saveDateArrivee(@NonNull Context context, @NonNull Date date) {
-
+    public void saveDateArrivee(@NonNull final Context context, @NonNull Date date) {
         String fileName = getFileName(date);
 
         if (checkIfFileExist(context, date)) {
             //File exist
             Log.d(TAG, "file exist");
-            FileInputStream inputStream;
-            String tmp = "";
-
-            try {
-                inputStream = context.openFileInput(fileName);
-                BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "utf8"));
-                String str;
-                while ((str = br.readLine()) != null) {
-                    tmp += str;
-                }
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //create json to parse
-            JSONArray jsonArray;
-            try {
-                jsonArray = new JSONArray(tmp);
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.e(TAG, "Could not parse json file: " + fileName);
-                jsonArray = null;
-            }
+            JSONArray jsonArray = getJSONArray(context, fileName);
             boolean exist = false;
             if (jsonArray != null) {
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -79,9 +54,11 @@ public class FileManager {
                             try {
                                 jsonArray.getJSONObject(i).get(DATE_ARRIVEE);
                                 exist = true;
-                                Log.d(TAG, "date arrivee exist deja");
+                                Log.d(TAG, "La date d'arrivée existe déjà !");
+                                break;
                             } catch (JSONException e) {
-                                Log.e(TAG, "date_arrivee does not exist");
+                                Log.d(TAG, "date_arrivee does not exist");
+                                break;
                             }
                         }
                     } catch (JSONException e) {
@@ -103,16 +80,7 @@ public class FileManager {
 
                 if (!exist) {
                     //writing in file
-                    FileOutputStream outputStream;
-
-                    try {
-                        outputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
-                        outputStream.write(jsonArray.toString().getBytes());
-                        outputStream.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Toast.makeText(context, "An error occured while saving the entry", Toast.LENGTH_LONG).show();
-                    }
+                    saveEntry(context, fileName, jsonArray);
                 }
             }
 
@@ -137,23 +105,11 @@ public class FileManager {
                     }
 
                     //writing in file
-                    FileOutputStream outputStream;
-
-                    try {
-                        outputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
-                        outputStream.write(data.toString().getBytes());
-                        outputStream.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Toast.makeText(context, "An error occured while saving the entry", Toast.LENGTH_LONG).show();
-                    }
-
-
+                   saveEntry(context, fileName, data);
                 }
 
             } catch (IOException e) {
-                Log.d(TAG, "error while creating file");
-
+                Log.e(TAG, "Érreur à la création du fichier");
                 e.printStackTrace();
             }
         }
@@ -161,47 +117,27 @@ public class FileManager {
 
     }
 
-
     public void saveDateDepart(@NonNull Context context, @NonNull Date date) {
 
         String fileName = getFileName(date);
         //Read file
-        FileInputStream inputStream;
-        String tmp = "";
-
-        try {
-            inputStream = context.openFileInput(fileName);
-            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "utf8"));
-            String str;
-            while ((str = br.readLine()) != null) {
-                tmp += str;
-            }
-            inputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //create json to parse
-        JSONArray jsonArray;
-        try {
-            jsonArray = new JSONArray(tmp);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.e(TAG, "Could not parse json file: " + fileName);
-            jsonArray = null;
-        }
+        JSONArray jsonArray = getJSONArray(context, fileName);
         if (jsonArray != null) {
             for (int i = 0; i < jsonArray.length(); i++) {
                 try {
                     if (DateUtils.getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
                         try {
                             jsonArray.getJSONObject(i).getLong(DATE_DEPART);
-                            Log.d(TAG, "date depart exist deja");
+                           Log.d(TAG, "La date de départ existe déjà !");
+
+                            break;
                         } catch (JSONException e) {
                             Log.d(TAG, "date depart n'existe pas, writing it");
                             jsonArray.getJSONObject(i).put(DATE_DEPART, date.getTime());
                             String fullLenghtTemp = DateUtils.calculateFullLenght(date.getTime(), jsonArray.getJSONObject(i).getLong(DATE_ARRIVEE));
                             jsonArray.getJSONObject(i).put(DUREE_TOTAL, fullLenghtTemp);
                             fullLenght = fullLenghtTemp;
+                            break;
                         }
 
                     }
@@ -210,16 +146,7 @@ public class FileManager {
                 }
             }
             //writing in file
-            FileOutputStream outputStream;
-
-            try {
-                outputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
-                outputStream.write(jsonArray.toString().getBytes());
-                outputStream.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(context, "An error occured while saving the entry", Toast.LENGTH_LONG).show();
-            }
+            saveEntry(context, fileName, jsonArray);
         }
     }
 
@@ -244,8 +171,47 @@ public class FileManager {
         return fileName;
     }
 
+    @Nullable
+    private JSONArray getJSONArray(@NonNull Context context, @NonNull String fileName){
+        FileInputStream inputStream;
+        String tmp = "";
 
+        try {
+            inputStream = context.openFileInput(fileName);
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "utf8"));
+            String str;
+            while ((str = br.readLine()) != null) {
+                tmp += str;
+            }
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //create json to parse
+        JSONArray jsonArray;
+        try {
+            jsonArray = new JSONArray(tmp);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e(TAG, "Could not parse json file: " + fileName);
+            jsonArray = null;
+        }
+        return jsonArray;
+    }
 
+    private void saveEntry(@NonNull Context context, @NonNull String fileName, @NonNull JSONArray data){
+        FileOutputStream outputStream;
+        try {
+            outputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
+            outputStream.write(data.toString().getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(context, "An error occured while saving the entry", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @NonNull
     public String[] getCurrentDayToDisplay(@NonNull Context context) {
         String dateBegin = "-", dateEnd = "-", fullLenght = "-";
 
