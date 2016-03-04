@@ -66,4 +66,23 @@
         android:layout_alignTop="@+id/depart_text"
         android:layout_toEndOf="@+id/depart_text" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Durée totale : "
+        android:id="@+id/full_lenght"
+        android:layout_below="@+id/depart_text"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="20dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text=""
+        android:id="@+id/full_lenght_text"
+        android:layout_alignTop="@+id/full_lenght"
+        android:layout_toEndOf="@+id/full_lenght" />
+
 </RelativeLayout>

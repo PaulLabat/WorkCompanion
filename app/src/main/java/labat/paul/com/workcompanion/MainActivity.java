@@ -19,8 +19,7 @@ import labat.paul.com.workcompanion.ListMonth.ListActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button arrive, depart;
-    private TextView arriveTextView, departTextView;
+    private TextView arriveTextView, departTextView, fullLenght;
 
 
     @Override
@@ -29,16 +28,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        arrive = (Button)findViewById(R.id.arrivee);
-        depart = (Button)findViewById(R.id.depart);
+        Button arrive = (Button) findViewById(R.id.arrivee);
+        Button depart = (Button) findViewById(R.id.depart);
         arriveTextView = (TextView)findViewById(R.id.date_arrivee);
         departTextView = (TextView)findViewById(R.id.date_depart);
+        fullLenght = (TextView)findViewById(R.id.full_lenght_text);
 
-        Pair<String, String> current = FileManager.getInstance().getCurrentDayToDisplay(this);
-        arriveTextView.setText(current.first);
-        departTextView.setText(current.second);
+        String [] current = FileManager.getInstance().getCurrentDayToDisplay(this);
+        arriveTextView.setText(current[0]);
+        departTextView.setText(current[1]);
+        fullLenght.setText(current[2]);
 
-        getSupportActionBar().setTitle(FileManager.getInstance().getFullDate(System.currentTimeMillis()));
+        getSupportActionBar().setTitle(DateUtils.getFullDate(System.currentTimeMillis()));
 
 
 
@@ -53,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
                     calendar.setTime(date);
                     text = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
                     text += ":" + String.valueOf(calendar.get(Calendar.MINUTE));
-
                     arriveTextView.setText(text);
                     FileManager.getInstance().saveDateArrivee(getApplicationContext(), date);
                 }
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         depart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(departTextView.getText().equals("-")) {
+                if (departTextView.getText().equals("-")) {
                     Timestamp stamp = new Timestamp(System.currentTimeMillis());
                     Date date = new Date(stamp.getTime());
                     String text;
@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
                     text += ":" + String.valueOf(calendar.get(Calendar.MINUTE));
                     departTextView.setText(text);
                     FileManager.getInstance().saveDateDepart(getApplicationContext(), date);
+                    fullLenght.setText(FileManager.getInstance().getFullLenght());
                 }
             }
         });

@@ -2,23 +2,23 @@ package labat.paul.com.workcompanion.VisualizeMonth;
 
 public class DataDay {
 
-    private Long date_depart, date_arrivee;
+    private String date_depart, date_arrivee;
     private String duree;
     private String date;
 
-    public Long getDate_depart() {
+    public String getDate_depart() {
         return date_depart;
     }
 
-    public void setDate_depart(Long date_depart) {
+    public void setDate_depart(String date_depart) {
         this.date_depart = date_depart;
     }
 
-    public Long getDate_arrivee() {
+    public String getDate_arrivee() {
         return date_arrivee;
     }
 
-    public void setDate_arrivee(Long date_arrivee) {
+    public void setDate_arrivee(String date_arrivee) {
         this.date_arrivee = date_arrivee;
     }
 

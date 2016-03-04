@@ -19,6 +19,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import labat.paul.com.workcompanion.DateUtils;
+import labat.paul.com.workcompanion.FileManager;
 import labat.paul.com.workcompanion.R;
 
 public class VisualizeMonthAdapter extends RecyclerView.Adapter<VisualizeMonthAdapter.ViewHolder>{
@@ -73,8 +75,8 @@ public class VisualizeMonthAdapter extends RecyclerView.Adapter<VisualizeMonthAd
                 try {
 
                     dataDay.setDate(jsonArray.getJSONObject(i).getString(DAY));
-                    dataDay.setDate_arrivee(jsonArray.getJSONObject(i).getLong(DATE_ARRIVEE));
-                    dataDay.setDate_depart(jsonArray.getJSONObject(i).getLong(DATE_DEPART));
+                    dataDay.setDate_arrivee(DateUtils.getHour(jsonArray.getJSONObject(i).getLong(DATE_ARRIVEE)));
+                    dataDay.setDate_depart(DateUtils.getHour(jsonArray.getJSONObject(i).getLong(DATE_DEPART)));
                     dataDay.setDuree(jsonArray.getJSONObject(i).getString(DUREE_TOTAL));
                 } catch (JSONException e) {
                     e.printStackTrace();

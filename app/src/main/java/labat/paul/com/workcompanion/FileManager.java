@@ -32,6 +32,9 @@ public class FileManager {
     private static final String DUREE_TOTAL = "duree_total";
     private static final String DAY = "day_date";
 
+    @Nullable
+    private String fullLenght;
+
     private static FileManager ourInstance = new FileManager();
 
     public static FileManager getInstance() {
@@ -72,7 +75,7 @@ public class FileManager {
             if (jsonArray != null) {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     try {
-                        if (getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
+                        if (DateUtils.getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
                             try {
                                 jsonArray.getJSONObject(i).get(DATE_ARRIVEE);
                                 exist = true;
@@ -90,7 +93,7 @@ public class FileManager {
                     //if day not saved yet
                     JSONObject currentDay = new JSONObject();
                     try {
-                        currentDay.put(DAY, getDay(date));
+                        currentDay.put(DAY, DateUtils.getDay(date));
                         currentDay.put(DATE_ARRIVEE, date.getTime());
                         jsonArray.put(currentDay);
                     } catch (JSONException e) {
@@ -124,7 +127,7 @@ public class FileManager {
                     JSONArray data = new JSONArray();
                     JSONObject day = new JSONObject();
                     try {
-                        day.put(DAY, getDay(date));
+                        day.put(DAY, DateUtils.getDay(date));
                         day.put(DATE_ARRIVEE, date.getTime());
                         data.put(0, day);
 
@@ -189,17 +192,16 @@ public class FileManager {
         if (jsonArray != null) {
             for (int i = 0; i < jsonArray.length(); i++) {
                 try {
-                    if (getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
+                    if (DateUtils.getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
                         try {
                             jsonArray.getJSONObject(i).getLong(DATE_DEPART);
                             Log.d(TAG, "date depart exist deja");
                         } catch (JSONException e) {
                             Log.d(TAG, "date depart n'existe pas, writing it");
                             jsonArray.getJSONObject(i).put(DATE_DEPART, date.getTime());
-                            long milisec = date.getTime() - jsonArray.getJSONObject(i).getLong(DATE_ARRIVEE);
-                            long hours = milisec / (1000 * 60 * 60);
-                            long mins = milisec / (60 * 1000) % 60;
-                            jsonArray.getJSONObject(i).put(DUREE_TOTAL, hours + ":" + mins);
+                            String fullLenghtTemp = DateUtils.calculateFullLenght(date.getTime(), jsonArray.getJSONObject(i).getLong(DATE_ARRIVEE));
+                            jsonArray.getJSONObject(i).put(DUREE_TOTAL, fullLenghtTemp);
+                            fullLenght = fullLenghtTemp;
                         }
 
                     }
@@ -227,7 +229,7 @@ public class FileManager {
         return file.exists();
     }
 
-
+    @NonNull
     private String getFileName(@NonNull Date date) {
         String fileName;
         Calendar calendar = Calendar.getInstance();
@@ -240,63 +242,12 @@ public class FileManager {
         }
         fileName += ".json";
         return fileName;
-
-
-    }
-
-
-    private String getDay(@NonNull Date date) {
-        String fileName;
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        fileName = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
-        fileName += "-" + String.valueOf(calendar.get(Calendar.MONTH));
-        return fileName;
-    }
-
-    private String getHour(@NonNull Date date){
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        String hour = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
-        hour += ":";
-        if(calendar.get(Calendar.MINUTE) < 10){
-            hour += "0";
-        }
-        hour += String.valueOf(calendar.get(Calendar.MINUTE));
-        return hour;
-
-    }
-
-    public String getFullDate(@NonNull Long l){
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date(l));
-        int tmpInt = calendar.get(Calendar.DAY_OF_MONTH);
-        String tmp="";
-
-        if(tmpInt < 10){
-            tmp = "0" + String.valueOf(tmpInt) + "-";
-        }else{
-            tmp = String.valueOf(tmpInt) + "-";
-        }
-
-        tmpInt = calendar.get(Calendar.MONTH)+1;
-        if(tmpInt < 10){
-            tmp += "0" + String.valueOf(tmpInt);
-        }else{
-            tmp += String.valueOf(tmpInt);
-        }
-        tmp += "-";
-        tmp += String.valueOf(calendar.get(Calendar.YEAR));
-        return tmp;
-
-
     }
 
 
 
-
-    public Pair<String, String> getCurrentDayToDisplay(@NonNull Context context) {
-        String dateBegin = "-", dateEnd = "-";
+    public String[] getCurrentDayToDisplay(@NonNull Context context) {
+        String dateBegin = "-", dateEnd = "-", fullLenght = "-";
 
 
         Timestamp stamp = new Timestamp(System.currentTimeMillis());
@@ -331,11 +282,11 @@ public class FileManager {
             if (jsonArray != null) {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     try {
-                        if (getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
+                        if (DateUtils.getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
                             try {
-                                dateBegin = getHour(new Date((long) jsonArray.getJSONObject(i).get(DATE_ARRIVEE)));
-
-                                dateEnd = getHour(new Date((long) jsonArray.getJSONObject(i).get(DATE_DEPART)));
+                                dateBegin = DateUtils.getHour(jsonArray.getJSONObject(i).getLong(DATE_ARRIVEE));
+                                dateEnd = DateUtils.getHour(jsonArray.getJSONObject(i).getLong(DATE_DEPART));
+                                fullLenght = jsonArray.getJSONObject(i).getString(DUREE_TOTAL);
                             } catch (JSONException e) {
                                 Log.w(TAG, "date non trouvee");
                             }
@@ -348,6 +299,11 @@ public class FileManager {
 
         }
 
-        return new Pair<>(dateBegin, dateEnd);
+        return new String[]{dateBegin, dateEnd, fullLenght};
+    }
+
+    @Nullable
+    public String getFullLenght(){
+        return fullLenght;
     }
 }
