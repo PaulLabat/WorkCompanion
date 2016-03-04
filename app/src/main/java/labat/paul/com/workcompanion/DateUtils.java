@@ -40,13 +40,13 @@ public class DateUtils {
         long hours = milisec / (1000 * 60 * 60);
         long mins = milisec / (60 * 1000) % 60;
         String hoursS, minsS;
-        if (hours >9){
+        if (hours < 10){
             hoursS = "0"+String.valueOf(hours);
         }else{
             hoursS = String.valueOf(hours);
         }
 
-        if (hours >9){
+        if (hours < 10){
             minsS = "0"+String.valueOf(mins);
         }else{
             minsS = String.valueOf(mins);
