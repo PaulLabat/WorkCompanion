@@ -134,7 +134,8 @@ public class FileManager {
                         } catch (JSONException e) {
                             Log.d(TAG, "date depart n'existe pas, writing it");
                             jsonArray.getJSONObject(i).put(DATE_DEPART, date.getTime());
-                            String fullLenghtTemp = DateUtils.calculateFullLenght(date.getTime(), jsonArray.getJSONObject(i).getLong(DATE_ARRIVEE));
+                            String fullLenghtTemp = DateUtils.calculateFullLenght(date.getTime(),
+                                    jsonArray.getJSONObject(i).getLong(DATE_ARRIVEE), context);
                             jsonArray.getJSONObject(i).put(DUREE_TOTAL, fullLenghtTemp);
                             fullLenght = fullLenghtTemp;
                             break;

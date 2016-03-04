@@ -1,8 +1,10 @@
 package labat.paul.com.workcompanion;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-
 import java.util.Calendar;
 import java.util.Date;
 
@@ -35,10 +37,32 @@ public class DateUtils {
     }
 
     @NonNull
-    public static String calculateFullLenght(@NonNull Long date1, @NonNull Long date2){
+    public static String calculateFullLenght(@NonNull Long date1, @NonNull Long date2, @NonNull Context context){
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String lunchTime = preferences.getString("lunch_time", "2");
+        String [] values = context.getResources().getStringArray(R.array.choice_length_values);
+        String [] time = context.getResources().getStringArray(R.array.choice_length);
+
+        int i;
+        for(i = 0; i< values.length; i++){
+            if(lunchTime.equals(values[i])){
+                break;
+            }
+        }
+
+        int tmpHour = Integer.parseInt(time[i].split(":")[0]);
+        int tmpMin = Integer.parseInt(time[i].split(":")[1]);
+
         long milisec = date1 - date2;
-        long hours = milisec / (1000 * 60 * 60);
-        long mins = milisec / (60 * 1000) % 60;
+
+
+        int hours =(int) milisec / (1000 * 60 * 60);
+        int mins =(int) milisec / (60 * 1000) % 60;
+
+        hours = hours - tmpHour;
+        mins = mins - tmpMin;
+
         String hoursS, minsS;
         if (hours < 10){
             hoursS = "0"+String.valueOf(hours);
@@ -46,7 +70,7 @@ public class DateUtils {
             hoursS = String.valueOf(hours);
         }
 
-        if (hours < 10){
+        if (mins < 10){
             minsS = "0"+String.valueOf(mins);
         }else{
             minsS = String.valueOf(mins);
