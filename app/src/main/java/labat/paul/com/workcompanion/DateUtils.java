@@ -39,20 +39,10 @@ public class DateUtils {
     @NonNull
     public static String calculateFullLenght(@NonNull Long date1, @NonNull Long date2, @NonNull Context context){
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String lunchTime = preferences.getString("lunch_time", "2");
-        String [] values = context.getResources().getStringArray(R.array.choice_length_values);
-        String [] time = context.getResources().getStringArray(R.array.choice_length);
+        String time = getLunchTime(context);
 
-        int i;
-        for(i = 0; i< values.length; i++){
-            if(lunchTime.equals(values[i])){
-                break;
-            }
-        }
-
-        int tmpHour = Integer.parseInt(time[i].split(":")[0]);
-        int tmpMin = Integer.parseInt(time[i].split(":")[1]);
+        int tmpHour = Integer.parseInt(time.split(":")[0]);
+        int tmpMin = Integer.parseInt(time.split(":")[1]);
 
         long milisec = date1 - date2;
 
@@ -60,8 +50,9 @@ public class DateUtils {
         int hours =(int) milisec / (1000 * 60 * 60);
         int mins =(int) milisec / (60 * 1000) % 60;
 
-        hours = hours - tmpHour;
-        mins = mins - tmpMin;
+        int total = hours * 60 + mins - tmpHour * 60 - tmpMin;
+        hours = total / 60;
+        mins = total % 60;
 
         String hoursS, minsS;
         if (hours < 10){
@@ -116,5 +107,23 @@ public class DateUtils {
         fileName += "-" + String.valueOf(calendar.get(Calendar.YEAR));
         return fileName;
     }
+
+
+    @NonNull
+    public static String getLunchTime(@NonNull Context context){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String lunchTime = preferences.getString("lunch_time", "2");
+        String [] values = context.getResources().getStringArray(R.array.choice_length_values);
+        String [] time = context.getResources().getStringArray(R.array.choice_length);
+
+        int i;
+        for(i = 0; i< values.length; i++){
+            if(lunchTime.equals(values[i])){
+                break;
+            }
+        }
+        return time[i];
+    }
+
 
 }
