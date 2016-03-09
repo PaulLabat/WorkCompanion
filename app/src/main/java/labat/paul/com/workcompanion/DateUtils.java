@@ -126,4 +126,26 @@ public class DateUtils {
     }
 
 
+    @NonNull
+    public static Date modifyDateTime(@NonNull Integer hour, @NonNull Integer min){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date(System.currentTimeMillis()));
+        calendar.set(Calendar.MINUTE, min);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        return calendar.getTime();
+    }
+
+    @NonNull
+    public static Integer getCurrentIntHour(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date(System.currentTimeMillis()));
+        return calendar.get(Calendar.HOUR_OF_DAY);
+    }
+    @NonNull
+    public static Integer getCurrentIntMin(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date(System.currentTimeMillis()));
+        return calendar.get(Calendar.MINUTE);
+    }
+
 }

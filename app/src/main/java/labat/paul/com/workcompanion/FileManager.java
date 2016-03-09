@@ -2,6 +2,7 @@ package labat.paul.com.workcompanion;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -19,6 +20,7 @@ import java.io.InputStreamReader;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 
 public class FileManager {
 
@@ -42,7 +44,7 @@ public class FileManager {
         Log.d(TAG, "Constructor");
     }
 
-    public void saveDateArrivee(@NonNull final Context context, @NonNull Date date) {
+    public void saveDateArrivee(@NonNull final Context context, @NonNull Date date, boolean modify) {
         String fileName = getFileName(date);
 
         String dayDate = DateUtils.getDay(date);
@@ -60,6 +62,21 @@ public class FileManager {
                                 jsonArray.getJSONObject(i).get(DATE_ARRIVEE);
                                 exist = true;
                                 Log.d(TAG, "La date d'arrivée existe déjà !");
+                                if (modify){
+                                    jsonArray.getJSONObject(i).remove(DATE_ARRIVEE);
+                                    jsonArray.getJSONObject(i).put(DATE_ARRIVEE, date.getTime());
+                                    try {
+                                        jsonArray.getJSONObject(i).get(DUREE_TOTAL);
+                                        jsonArray.getJSONObject(i).remove(DUREE_TOTAL);
+                                        String fullLenghtTemp = DateUtils.calculateFullLenght(jsonArray.getJSONObject(i).getLong(DATE_DEPART),date.getTime(), context);
+                                        jsonArray.getJSONObject(i).put(DUREE_TOTAL, fullLenghtTemp);
+                                        fullLenght = fullLenghtTemp;
+
+                                    }catch (JSONException e){
+                                        // n'existe pas, ne fait rien
+                                    }
+
+                                }
                                 break;
                             } catch (JSONException e) {
                                 Log.d(TAG, "date_arrivee does not exist");
@@ -83,9 +100,12 @@ public class FileManager {
                     }
                 }
 
-                if (!exist) {
+                if (!exist || modify) {
                     //writing in file
                     saveEntry(context, fileName, jsonArray);
+                    if (modify){
+                        context.sendBroadcast(new Intent("action_refresh"));
+                    }
                 }
             }
 
@@ -122,36 +142,56 @@ public class FileManager {
 
     }
 
-    public void saveDateDepart(@NonNull Context context, @NonNull Date date) {
+    public void saveDateDepart(@NonNull Context context, @NonNull Date date, boolean modify) {
+
         String fileName = getFileName(date);
-        //Read file
-        JSONArray jsonArray = getJSONArray(context, fileName);
-        if (jsonArray != null) {
-            for (int i = 0; i < jsonArray.length(); i++) {
-                try {
-                    if (DateUtils.getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
-                        try {
-                            jsonArray.getJSONObject(i).getLong(DATE_DEPART);
-                           Log.d(TAG, "La date de départ existe déjà !");
 
-                            break;
-                        } catch (JSONException e) {
-                            Log.d(TAG, "date depart n'existe pas, writing it");
-                            jsonArray.getJSONObject(i).put(DATE_DEPART, date.getTime());
-                            String fullLenghtTemp = DateUtils.calculateFullLenght(date.getTime(),
-                                    jsonArray.getJSONObject(i).getLong(DATE_ARRIVEE), context);
-                            jsonArray.getJSONObject(i).put(DUREE_TOTAL, fullLenghtTemp);
-                            fullLenght = fullLenghtTemp;
-                            break;
+        if(checkIfFileExist(context, date)) {
+
+            //Read file
+            JSONArray jsonArray = getJSONArray(context, fileName);
+            if (jsonArray != null) {
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    try {
+                        if (DateUtils.getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
+                            try {
+                                jsonArray.getJSONObject(i).getLong(DATE_DEPART);
+                                Log.d(TAG, "La date de départ existe déjà !");
+                                if (modify) {
+                                    jsonArray.getJSONObject(i).remove(DATE_DEPART);
+                                    jsonArray.getJSONObject(i).remove(DUREE_TOTAL);
+                                    jsonArray.getJSONObject(i).put(DATE_DEPART, date.getTime());
+                                    String fullLenghtTemp = DateUtils.calculateFullLenght(date.getTime(),
+                                            jsonArray.getJSONObject(i).getLong(DATE_ARRIVEE), context);
+                                    jsonArray.getJSONObject(i).put(DUREE_TOTAL, fullLenghtTemp);
+                                    fullLenght = fullLenghtTemp;
+
+                                }
+
+                                break;
+                            } catch (JSONException e) {
+                                Log.d(TAG, "date depart n'existe pas, writing it");
+                                jsonArray.getJSONObject(i).put(DATE_DEPART, date.getTime());
+                                String fullLenghtTemp = DateUtils.calculateFullLenght(date.getTime(),
+                                        jsonArray.getJSONObject(i).getLong(DATE_ARRIVEE), context);
+                                jsonArray.getJSONObject(i).put(DUREE_TOTAL, fullLenghtTemp);
+                                fullLenght = fullLenghtTemp;
+                                break;
+                            }
+
                         }
-
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                }
+                //writing in file
+                saveEntry(context, fileName, jsonArray);
+                if (modify) {
+                    context.sendBroadcast(new Intent("action_refresh"));
                 }
             }
-            //writing in file
-            saveEntry(context, fileName, jsonArray);
+        }else{
+            Log.e(TAG, "fichier non existant : "+fileName);
         }
     }
 

@@ -2,7 +2,10 @@ package labat.paul.com.workcompanion;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -56,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
                 if (arriveTextView.getText().equals("-")) {
                     Date date = new Date(System.currentTimeMillis());
                     arriveTextView.setText(DateUtils.getTime(date));
-                    FileManager.getInstance().saveDateArrivee(getApplicationContext(), date);
+                    FileManager.getInstance().saveDateArrivee(getApplicationContext(), date, false);
                 }
             }
         });
@@ -67,13 +70,26 @@ public class MainActivity extends AppCompatActivity {
                 if (departTextView.getText().equals("-")) {
                     Date date = new Date(System.currentTimeMillis());
                     departTextView.setText(DateUtils.getTime(date));
-                    FileManager.getInstance().saveDateDepart(getApplicationContext(), date);
+                    FileManager.getInstance().saveDateDepart(getApplicationContext(), date, false);
                     fullLenght.setText(FileManager.getInstance().getFullLenght());
                 }
             }
         });
 
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(broadcastReceiver, intentFilter);
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -86,20 +102,56 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+
             case R.id.action_list:
                 Intent intent = new Intent(this, ListActivity.class);
                 startActivity(intent);
                 return true;
+
             case R.id.settings:
                 Intent tmp = new Intent(this, Settings.class);
                 startActivity(tmp);
                 return true;
+
+            case R.id.action_change_day_arriving_time:
+                new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        FileManager.getInstance().saveDateArrivee(getApplicationContext(), DateUtils.modifyDateTime(hourOfDay, minute), true);
+                    }
+                }, DateUtils.getCurrentIntHour(), DateUtils.getCurrentIntMin(), true).show();
+                return true;
+
+            case R.id.action_change_day_departure_time:
+                new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        FileManager.getInstance().saveDateDepart(getApplicationContext(), DateUtils.modifyDateTime(hourOfDay, minute), true);
+                    }
+                }, DateUtils.getCurrentIntHour(), DateUtils.getCurrentIntMin(), true).show();
+                return true;
+
             default:
                 Log.w(TAG, "Action menu non prise en charge");
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals("action_refresh")){
+                String [] current = FileManager.getInstance().getCurrentDayToDisplay(getApplicationContext());
+                arriveTextView.setText(current[0]);
+                departTextView.setText(current[1]);
+                fullLenght.setText(current[2]);
+            }
+        }
+    };
+
+    IntentFilter intentFilter = new IntentFilter("action_refresh");
 
 
 }
