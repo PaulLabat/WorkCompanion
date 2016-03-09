@@ -71,7 +71,7 @@ public class DateUtils {
     }
 
     @NonNull
-    public static String getHour(@NonNull Long date){
+    public static String getTime(@NonNull Long date){
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date(date));
         String hour = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
@@ -84,7 +84,7 @@ public class DateUtils {
 
     }
     @NonNull
-    public static String getHour(@NonNull Date date){
+    public static String getTime(@NonNull Date date){
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         String hour = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));

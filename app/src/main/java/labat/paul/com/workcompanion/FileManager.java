@@ -1,7 +1,6 @@
 package labat.paul.com.workcompanion;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -39,8 +38,14 @@ public class FileManager {
         return ourInstance;
     }
 
+    private FileManager(){
+        Log.d(TAG, "Constructor");
+    }
+
     public void saveDateArrivee(@NonNull final Context context, @NonNull Date date) {
         String fileName = getFileName(date);
+
+        String dayDate = DateUtils.getDay(date);
 
         if (checkIfFileExist(context, date)) {
             //File exist
@@ -50,7 +55,7 @@ public class FileManager {
             if (jsonArray != null) {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     try {
-                        if (DateUtils.getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
+                        if (dayDate.equals(jsonArray.getJSONObject(i).getString(DAY))) {
                             try {
                                 jsonArray.getJSONObject(i).get(DATE_ARRIVEE);
                                 exist = true;
@@ -70,7 +75,7 @@ public class FileManager {
                     //if day not saved yet
                     JSONObject currentDay = new JSONObject();
                     try {
-                        currentDay.put(DAY, DateUtils.getDay(date));
+                        currentDay.put(DAY, dayDate);
                         currentDay.put(DATE_ARRIVEE, date.getTime());
                         jsonArray.put(currentDay);
                     } catch (JSONException e) {
@@ -95,7 +100,7 @@ public class FileManager {
                     JSONArray data = new JSONArray();
                     JSONObject day = new JSONObject();
                     try {
-                        day.put(DAY, DateUtils.getDay(date));
+                        day.put(DAY, dayDate);
                         day.put(DATE_ARRIVEE, date.getTime());
                         data.put(0, day);
 
@@ -118,7 +123,6 @@ public class FileManager {
     }
 
     public void saveDateDepart(@NonNull Context context, @NonNull Date date) {
-
         String fileName = getFileName(date);
         //Read file
         JSONArray jsonArray = getJSONArray(context, fileName);
@@ -220,39 +224,17 @@ public class FileManager {
         Timestamp stamp = new Timestamp(System.currentTimeMillis());
         Date date = new Date(stamp.getTime());
 
-        String fileName = getFileName(date);
-
         if (checkIfFileExist(context, date)) {
-            FileInputStream inputStream;
-            String tmp = "";
 
-            try {
-                inputStream = context.openFileInput(fileName);
-                BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "utf8"));
-                String str;
-                while ((str = br.readLine()) != null) {
-                    tmp += str;
-                }
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             //create json to parse
-            JSONArray jsonArray;
-            try {
-                jsonArray = new JSONArray(tmp);
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.e(TAG, "Could not parse json file: " + fileName);
-                jsonArray = null;
-            }
+            JSONArray jsonArray = getJSONArray(context, getFileName(date));
             if (jsonArray != null) {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     try {
                         if (DateUtils.getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
                             try {
-                                dateBegin = DateUtils.getHour(jsonArray.getJSONObject(i).getLong(DATE_ARRIVEE));
-                                dateEnd = DateUtils.getHour(jsonArray.getJSONObject(i).getLong(DATE_DEPART));
+                                dateBegin = DateUtils.getTime(jsonArray.getJSONObject(i).getLong(DATE_ARRIVEE));
+                                dateEnd = DateUtils.getTime(jsonArray.getJSONObject(i).getLong(DATE_DEPART));
                                 fullLenght = jsonArray.getJSONObject(i).getString(DUREE_TOTAL);
                             } catch (JSONException e) {
                                 Log.w(TAG, "date non trouvee");
