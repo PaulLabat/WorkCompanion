@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import labat.paul.com.workcompanion.R;
 
@@ -35,6 +36,8 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("lunch_time", lunch.getValue());
             editor.apply();
+        }else if(key.equals("max_supp_hour")){
+            Log.d(getClass().getName(), "max_supp_hour");
         }
     }
 

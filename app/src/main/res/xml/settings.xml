@@ -10,4 +10,12 @@
         android:defaultValue="@string/default_value_lunch"
         android:dialogTitle="Sélectionner la durée de la pause déjeuner" />
 
+    <labat.paul.com.workcompanion.UI.TimePickerPreference
+        android:key="max_supp_hour"
+        android:title="Nombre d\'heures supplémentaires max"/>
+
+    <labat.paul.com.workcompanion.UI.TimePickerPreference
+        android:key="day_lenght"
+        android:title="Durée de la journée de travail"/>
+
 </PreferenceScreen>

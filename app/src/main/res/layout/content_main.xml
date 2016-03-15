@@ -85,4 +85,12 @@
         android:layout_alignTop="@+id/full_lenght"
         android:layout_toEndOf="@+id/full_lenght" />
 
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Demi journée"
+        android:id="@+id/half_day"
+        android:layout_below="@+id/full_lenght"
+        android:layout_marginTop="20dp" />
+
 </RelativeLayout>
