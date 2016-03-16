@@ -30,6 +30,7 @@ public class FileManager {
     private static final String DATE_DEPART = "date_depart";
     private static final String DUREE_TOTAL = "duree_total";
     private static final String DAY = "day_date";
+    private static final String HALF_DAY = "half_day";
 
     @Nullable
     private String fullLenght;
@@ -191,8 +192,80 @@ public class FileManager {
                 }
             }
         }else{
-            Log.e(TAG, "fichier non existant : "+fileName);
+            Log.e(TAG, "fichier non existant : " + fileName);
         }
+    }
+
+
+    public boolean saveIsHalfDay(@NonNull Context context, @NonNull Date date, boolean isHalfDay){
+        String fileName = getFileName(date);
+
+        if(checkIfFileExist(context, date)) {
+
+            //Read file
+            JSONArray jsonArray = getJSONArray(context, fileName);
+
+            if (jsonArray != null) {
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    try {
+                        if (DateUtils.getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
+                            try {
+                                jsonArray.getJSONObject(i).getBoolean(HALF_DAY);
+                                //si la donnée existe
+                                jsonArray.getJSONObject(i).remove(HALF_DAY);
+                                jsonArray.getJSONObject(i).put(HALF_DAY, isHalfDay);
+
+                                break;
+                            } catch (JSONException e) {
+                                Log.d(TAG, "date depart n'existe pas, writing it");
+                                jsonArray.getJSONObject(i).put(HALF_DAY, isHalfDay);
+                                break;
+                            }
+
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                //writing in file
+                saveEntry(context, fileName, jsonArray);
+                return true;
+            }else{
+                return false;
+            }
+
+        }else{
+            return false;
+        }
+    }
+
+    public boolean getIsHalfDay(@NonNull Context context, @NonNull Date date) {
+        String fileName = getFileName(date);
+
+        if (checkIfFileExist(context, date)) {
+
+            //Read file
+            JSONArray jsonArray = getJSONArray(context, fileName);
+
+            if (jsonArray != null) {
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    try {
+                        if (DateUtils.getDay(date).equals(jsonArray.getJSONObject(i).getString(DAY))) {
+                            try {
+                                return jsonArray.getJSONObject(i).getBoolean(HALF_DAY);
+                            } catch (JSONException e) {
+                                return false;
+                            }
+
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
 

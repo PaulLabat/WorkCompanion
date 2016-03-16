@@ -50,7 +50,13 @@ public class DateUtils {
         int hours =(int) milisec / (1000 * 60 * 60);
         int mins =(int) milisec / (60 * 1000) % 60;
 
-        int total = hours * 60 + mins - tmpHour * 60 - tmpMin;
+        int total;
+        if(FileManager.getInstance().getIsHalfDay(context, new Date(date1))){
+            total = hours * 60 + mins;
+        }else{
+            total = hours * 60 + mins - tmpHour * 60 - tmpMin;
+        }
+
         hours = total / 60;
         mins = total % 60;
 

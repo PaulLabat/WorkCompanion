@@ -6,7 +6,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -15,6 +17,8 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -30,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private TextView arriveTextView, departTextView, fullLenght;
+    private CheckBox halfDay;
 
 
     @Override
@@ -43,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         arriveTextView = (TextView)findViewById(R.id.date_arrivee);
         departTextView = (TextView)findViewById(R.id.date_depart);
         fullLenght = (TextView)findViewById(R.id.full_lenght_text);
+        halfDay = (CheckBox)findViewById(R.id.half_day);
 
         String [] current = FileManager.getInstance().getCurrentDayToDisplay(this);
         arriveTextView.setText(current[0]);
@@ -50,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
         fullLenght.setText(current[2]);
 
         getSupportActionBar().setTitle(DateUtils.getFullDate(System.currentTimeMillis()));
-
-
 
         arrive.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,18 +81,31 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        halfDay.setChecked(FileManager.getInstance().getIsHalfDay(this, new Date(System.currentTimeMillis())));
+        halfDay.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                boolean res = FileManager.getInstance().saveIsHalfDay(getApplicationContext(), new Date(System.currentTimeMillis()), isChecked);
+                if (!res){
+                    halfDay.setChecked(false);
+                }
+            }
+        });
+
+
+
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         registerReceiver(broadcastReceiver, intentFilter);
 
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onStop() {
+        super.onStop();
         unregisterReceiver(broadcastReceiver);
     }
 
