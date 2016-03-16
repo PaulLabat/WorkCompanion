@@ -26,4 +26,18 @@
         android:orderInCategory="100"
         android:title="Settings"
         app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/dropbox"
+        android:orderInCategory="100"
+        android:title="Dropbox"
+        android:checkable="true"
+        android:checked="false"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/sync"
+        android:orderInCategory="100"
+        android:title="Synchroniser"
+        app:showAsAction="never"/>
 </menu>

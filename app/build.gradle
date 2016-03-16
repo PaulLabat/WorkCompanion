@@ -26,4 +26,6 @@ dependencies {
     compile 'com.android.support:design:23.2.0'
     compile 'com.android.support:cardview-v7:23.2.0'
     compile 'com.android.support:recyclerview-v7:23.2.0'
+    compile files('/mnt/SSD/WorkCompanion/libs/dropbox-android-sdk-1.6.3.jar')
+    compile files('/mnt/SSD/WorkCompanion/libs/json_simple-1.1.jar')
 }
