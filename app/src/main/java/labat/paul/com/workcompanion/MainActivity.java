@@ -32,6 +32,7 @@ import com.dropbox.client2.android.AuthActivity;
 import com.dropbox.client2.session.AccessTokenPair;
 import com.dropbox.client2.session.AppKeyPair;
 
+import labat.paul.com.workcompanion.DropBox.DownloadFiles;
 import labat.paul.com.workcompanion.DropBox.UploadFiles;
 import labat.paul.com.workcompanion.ListMonth.ListActivity;
 import labat.paul.com.workcompanion.Preferences.Settings;
@@ -231,7 +232,11 @@ public class MainActivity extends AppCompatActivity {
                         upload.execute();
                     }
                 }
-
+                return true;
+            case R.id.download:
+                DownloadFiles download = new DownloadFiles(this, mApi, getFilesDir().getPath());
+                download.execute();
+                return true;
             default:
                 Log.w(TAG, "Action menu non prise en charge");
         }
@@ -248,6 +253,7 @@ public class MainActivity extends AppCompatActivity {
                 arriveTextView.setText(current[0]);
                 departTextView.setText(current[1]);
                 fullLenght.setText(current[2]);
+                halfDay.setEnabled(!fullLenght.getText().equals("-"));
             }
         }
     };

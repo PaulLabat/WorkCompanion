@@ -38,6 +38,11 @@
     <item
         android:id="@+id/sync"
         android:orderInCategory="100"
-        android:title="Synchroniser"
+        android:title="Uploader"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/download"
+        android:orderInCategory="100"
+        android:title="Télécharger"
         app:showAsAction="never"/>
 </menu>
