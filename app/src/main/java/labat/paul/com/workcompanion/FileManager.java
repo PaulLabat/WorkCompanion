@@ -32,28 +32,26 @@ public class FileManager {
     private static final String DAY = "day_date";
     private static final String HALF_DAY = "half_day";
 
+    @NonNull
+    private Context context;
+
     @Nullable
     private String fullLenght;
 
-    private static FileManager ourInstance = new FileManager();
-
-    public static FileManager getInstance() {
-        return ourInstance;
-    }
-
-    private FileManager(){
+    public FileManager(@NonNull Context context){
+        this.context = context;
         Log.d(TAG, "Constructor");
     }
 
-    public void saveDateArrivee(@NonNull final Context context, @NonNull Date date, boolean modify) {
+    public void saveDateArrivee(@NonNull Date date, boolean modify) {
         String fileName = getFileName(date);
 
         String dayDate = DateUtils.getDay(date);
 
-        if (checkIfFileExist(context, date)) {
+        if (checkIfFileExist(date)) {
             //File exist
             Log.d(TAG, "file exist");
-            JSONArray jsonArray = getJSONArray(context, fileName);
+            JSONArray jsonArray = getJSONArray(fileName);
             boolean exist = false;
             if (jsonArray != null) {
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -103,7 +101,7 @@ public class FileManager {
 
                 if (!exist || modify) {
                     //writing in file
-                    saveEntry(context, fileName, jsonArray);
+                    saveEntry(fileName, jsonArray);
                     if (modify){
                         context.sendBroadcast(new Intent("action_refresh"));
                     }
@@ -131,7 +129,7 @@ public class FileManager {
                     }
 
                     //writing in file
-                   saveEntry(context, fileName, data);
+                   saveEntry(fileName, data);
                 }
 
             } catch (IOException e) {
@@ -143,14 +141,14 @@ public class FileManager {
 
     }
 
-    public void saveDateDepart(@NonNull Context context, @NonNull Date date, boolean modify) {
+    public void saveDateDepart(@NonNull Date date, boolean modify) {
 
         String fileName = getFileName(date);
 
-        if(checkIfFileExist(context, date)) {
+        if(checkIfFileExist(date)) {
 
             //Read file
-            JSONArray jsonArray = getJSONArray(context, fileName);
+            JSONArray jsonArray = getJSONArray(fileName);
             if (jsonArray != null) {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     try {
@@ -186,7 +184,7 @@ public class FileManager {
                     }
                 }
                 //writing in file
-                saveEntry(context, fileName, jsonArray);
+                saveEntry(fileName, jsonArray);
                 if (modify) {
                     context.sendBroadcast(new Intent("action_refresh"));
                 }
@@ -197,13 +195,13 @@ public class FileManager {
     }
 
 
-    public boolean saveIsHalfDay(@NonNull Context context, @NonNull Date date, boolean isHalfDay){
+    public boolean saveIsHalfDay(@NonNull Date date, boolean isHalfDay){
         String fileName = getFileName(date);
 
-        if(checkIfFileExist(context, date)) {
+        if(checkIfFileExist(date)) {
 
             //Read file
-            JSONArray jsonArray = getJSONArray(context, fileName);
+            JSONArray jsonArray = getJSONArray(fileName);
 
             if (jsonArray != null) {
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -228,7 +226,7 @@ public class FileManager {
                     }
                 }
                 //writing in file
-                saveEntry(context, fileName, jsonArray);
+                saveEntry(fileName, jsonArray);
                 return true;
             }else{
                 return false;
@@ -239,13 +237,13 @@ public class FileManager {
         }
     }
 
-    public boolean getIsHalfDay(@NonNull Context context, @NonNull Date date) {
+    public boolean getIsHalfDay(@NonNull Date date) {
         String fileName = getFileName(date);
 
-        if (checkIfFileExist(context, date)) {
+        if (checkIfFileExist(date)) {
 
             //Read file
-            JSONArray jsonArray = getJSONArray(context, fileName);
+            JSONArray jsonArray = getJSONArray(fileName);
 
             if (jsonArray != null) {
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -269,7 +267,7 @@ public class FileManager {
     }
 
 
-    private boolean checkIfFileExist(@NonNull Context context, @NonNull Date date) {
+    private boolean checkIfFileExist(@NonNull Date date) {
         File file = new File(context.getFilesDir(), getFileName(date));
         return file.exists();
     }
@@ -290,7 +288,7 @@ public class FileManager {
     }
 
     @Nullable
-    private JSONArray getJSONArray(@NonNull Context context, @NonNull String fileName){
+    private JSONArray getJSONArray(@NonNull String fileName){
         FileInputStream inputStream;
         String tmp = "";
 
@@ -317,7 +315,7 @@ public class FileManager {
         return jsonArray;
     }
 
-    private void saveEntry(@NonNull Context context, @NonNull String fileName, @NonNull JSONArray data){
+    private void saveEntry(@NonNull String fileName, @NonNull JSONArray data){
         FileOutputStream outputStream;
         try {
             outputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
@@ -330,17 +328,17 @@ public class FileManager {
     }
 
     @NonNull
-    public String[] getCurrentDayToDisplay(@NonNull Context context) {
+    public String[] getCurrentDayToDisplay() {
         String dateBegin = "-", dateEnd = "-", fullLenght = "-";
 
 
         Timestamp stamp = new Timestamp(System.currentTimeMillis());
         Date date = new Date(stamp.getTime());
 
-        if (checkIfFileExist(context, date)) {
+        if (checkIfFileExist(date)) {
 
             //create json to parse
-            JSONArray jsonArray = getJSONArray(context, getFileName(date));
+            JSONArray jsonArray = getJSONArray(getFileName(date));
             if (jsonArray != null) {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     try {

@@ -15,7 +15,7 @@ public class DateUtils {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date(l));
         int tmpInt = calendar.get(Calendar.DAY_OF_MONTH);
-        String tmp="";
+        String tmp;
 
         if(tmpInt < 10){
             tmp = "0" + String.valueOf(tmpInt) + "-";
@@ -38,7 +38,7 @@ public class DateUtils {
 
     @NonNull
     public static String calculateFullLenght(@NonNull Long date1, @NonNull Long date2, @NonNull Context context){
-
+        FileManager fileManager = new FileManager(context);
         String time = getLunchTime(context);
 
         int tmpHour = Integer.parseInt(time.split(":")[0]);
@@ -51,7 +51,7 @@ public class DateUtils {
         int mins =(int) milisec / (60 * 1000) % 60;
 
         int total;
-        if(FileManager.getInstance().getIsHalfDay(context, new Date(date1))){
+        if(fileManager.getIsHalfDay(new Date(date1))){
             total = hours * 60 + mins;
         }else{
             total = hours * 60 + mins - tmpHour * 60 - tmpMin;

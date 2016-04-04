@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     DropboxAPI<AndroidAuthSession> mApi;
 
     private boolean mLoggedIn;
-
+    private FileManager fileManager;
 
 
     @Override
@@ -68,8 +69,8 @@ public class MainActivity extends AppCompatActivity {
 
         // We create a new AuthSession so that we can use the Dropbox API.
         AndroidAuthSession session = buildSession();
-        mApi = new DropboxAPI<AndroidAuthSession>(session);
-
+        mApi = new DropboxAPI<>(session);
+        fileManager = new FileManager(this);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -81,12 +82,13 @@ public class MainActivity extends AppCompatActivity {
         fullLenght = (TextView)findViewById(R.id.full_lenght_text);
         halfDay = (CheckBox)findViewById(R.id.half_day);
 
-        String [] current = FileManager.getInstance().getCurrentDayToDisplay(this);
+        String [] current = fileManager.getCurrentDayToDisplay();
         arriveTextView.setText(current[0]);
         departTextView.setText(current[1]);
         fullLenght.setText(current[2]);
 
-        getSupportActionBar().setTitle(DateUtils.getFullDate(System.currentTimeMillis()));
+        if(getSupportActionBar() != null)
+            getSupportActionBar().setTitle(DateUtils.getFullDate(System.currentTimeMillis()));
 
         arrive.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 if (arriveTextView.getText().equals("-")) {
                     Date date = new Date(System.currentTimeMillis());
                     arriveTextView.setText(DateUtils.getTime(date));
-                    FileManager.getInstance().saveDateArrivee(getApplicationContext(), date, false);
+                    fileManager.saveDateArrivee(date, false);
                 }
             }
         });
@@ -105,8 +107,8 @@ public class MainActivity extends AppCompatActivity {
                 if (departTextView.getText().equals("-")) {
                     Date date = new Date(System.currentTimeMillis());
                     departTextView.setText(DateUtils.getTime(date));
-                    FileManager.getInstance().saveDateDepart(getApplicationContext(), date, false);
-                    fullLenght.setText(FileManager.getInstance().getFullLenght());
+                    fileManager.saveDateDepart(date, false);
+                    fullLenght.setText(fileManager.getFullLenght());
                     halfDay.setEnabled(false);
                 }
             }
@@ -116,11 +118,11 @@ public class MainActivity extends AppCompatActivity {
         if (!fullLenght.getText().equals("-")){
             halfDay.setEnabled(false);
         }
-        halfDay.setChecked(FileManager.getInstance().getIsHalfDay(this, new Date(System.currentTimeMillis())));
+        halfDay.setChecked(fileManager.getIsHalfDay(new Date(System.currentTimeMillis())));
         halfDay.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                boolean res = FileManager.getInstance().saveIsHalfDay(getApplicationContext(), new Date(System.currentTimeMillis()), isChecked);
+                boolean res = fileManager.saveIsHalfDay(new Date(System.currentTimeMillis()), isChecked);
                 if (!res) {
                     halfDay.setChecked(false);
                 }
@@ -197,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
                 new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        FileManager.getInstance().saveDateArrivee(getApplicationContext(), DateUtils.modifyDateTime(hourOfDay, minute), true);
+                        fileManager.saveDateArrivee(DateUtils.modifyDateTime(hourOfDay, minute), true);
                     }
                 }, DateUtils.getCurrentIntHour(), DateUtils.getCurrentIntMin(), true).show();
                 return true;
@@ -206,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
                 new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        FileManager.getInstance().saveDateDepart(getApplicationContext(), DateUtils.modifyDateTime(hourOfDay, minute), true);
+                        fileManager.saveDateDepart( DateUtils.modifyDateTime(hourOfDay, minute), true);
                     }
                 }, DateUtils.getCurrentIntHour(), DateUtils.getCurrentIntMin(), true).show();
                 return true;
@@ -227,8 +229,8 @@ public class MainActivity extends AppCompatActivity {
             case R.id.sync:
                 File[] list = new File(getFilesDir().getPath()).listFiles();
                 if(list != null && list.length > 0){
-                    for (int i = 0; i< list.length; i++){
-                        UploadFiles upload = new UploadFiles(this, mApi, "/", list[i]);
+                    for (File aList : list) {
+                        UploadFiles upload = new UploadFiles(this, mApi, "/", aList);
                         upload.execute();
                     }
                 }
@@ -249,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals("action_refresh")){
-                String [] current = FileManager.getInstance().getCurrentDayToDisplay(getApplicationContext());
+                String [] current = fileManager.getCurrentDayToDisplay();
                 arriveTextView.setText(current[0]);
                 departTextView.setText(current[1]);
                 fullLenght.setText(current[2]);
@@ -343,7 +345,7 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor edit = prefs.edit();
             edit.putString(ACCESS_KEY_NAME, "oauth2:");
             edit.putString(ACCESS_SECRET_NAME, oauth2AccessToken);
-            edit.commit();
+            edit.apply();
             return;
         }
         // Store the OAuth 1 access token, if there is one.  This is only necessary if
@@ -354,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor edit = prefs.edit();
             edit.putString(ACCESS_KEY_NAME, oauth1AccessToken.key);
             edit.putString(ACCESS_SECRET_NAME, oauth1AccessToken.secret);
-            edit.commit();
+            edit.apply();
         }
     }
 
@@ -362,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences(ACCOUNT_PREFS_NAME, 0);
         SharedPreferences.Editor edit = prefs.edit();
         edit.clear();
-        edit.commit();
+        edit.apply();
     }
 
     private AndroidAuthSession buildSession() {

@@ -61,7 +61,7 @@ public class TimePickerPreference extends DialogPreference {
             calendar.set(Calendar.MINUTE, picker.getCurrentMinute());
             setSummary(getSummary());
             if (callChangeListener(calendar.getTimeInMillis())) {
-                persistLong(calendar.getTimeInMillis());
+                persistString(calendar.getTimeInMillis() + "");
                 notifyChanged();
             }
         }
@@ -77,7 +77,7 @@ public class TimePickerPreference extends DialogPreference {
 
         if (restoreValue) {
             if (defaultValue == null) {
-                calendar.setTimeInMillis(getPersistedLong(System.currentTimeMillis()));
+                calendar.setTimeInMillis(Long.parseLong(getPersistedString(System.currentTimeMillis()+"")));
             } else {
                 calendar.setTimeInMillis(Long.parseLong(getPersistedString((String) defaultValue)));
             }
