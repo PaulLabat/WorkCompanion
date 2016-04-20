@@ -12,10 +12,12 @@
 
     <labat.paul.com.workcompanion.UI.TimePickerPreference
         android:key="max_supp_hour"
-        android:title="Nombre d\'heures supplémentaires max"/>
+        android:title="Nombre d\'heures supplémentaires max"
+        android:defaultValue="7:00"/>
 
     <labat.paul.com.workcompanion.UI.TimePickerPreference
         android:key="day_lenght"
-        android:title="Durée de la journée de travail"/>
+        android:title="Durée de la journée de travail"
+        android:defaultValue="7:18"/>
 
 </PreferenceScreen>

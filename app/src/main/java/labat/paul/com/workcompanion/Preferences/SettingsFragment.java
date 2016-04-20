@@ -7,7 +7,10 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.util.Calendar;
+
 import labat.paul.com.workcompanion.R;
+import labat.paul.com.workcompanion.UI.TimePickerPreference;
 
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener{
@@ -36,8 +39,6 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("lunch_time", lunch.getValue());
             editor.apply();
-        }else if(key.equals("max_supp_hour")){
-            Log.d(getClass().getName(), "max_supp_hour");
         }
     }
 

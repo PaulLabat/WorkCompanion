@@ -90,29 +90,33 @@ public class MainActivity extends AppCompatActivity {
         if(getSupportActionBar() != null)
             getSupportActionBar().setTitle(DateUtils.getFullDate(System.currentTimeMillis()));
 
-        arrive.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (arriveTextView.getText().equals("-")) {
-                    Date date = new Date(System.currentTimeMillis());
-                    arriveTextView.setText(DateUtils.getTime(date));
-                    fileManager.saveDateArrivee(date, false);
+        if (arrive != null) {
+            arrive.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (arriveTextView.getText().equals("-")) {
+                        Date date = new Date(System.currentTimeMillis());
+                        arriveTextView.setText(DateUtils.getTime(date));
+                        fileManager.saveDateArrivee(date, false);
+                    }
                 }
-            }
-        });
+            });
+        }
 
-        depart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (departTextView.getText().equals("-")) {
-                    Date date = new Date(System.currentTimeMillis());
-                    departTextView.setText(DateUtils.getTime(date));
-                    fileManager.saveDateDepart(date, false);
-                    fullLenght.setText(fileManager.getFullLenght());
-                    halfDay.setEnabled(false);
+        if (depart != null) {
+            depart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (departTextView.getText().equals("-")) {
+                        Date date = new Date(System.currentTimeMillis());
+                        departTextView.setText(DateUtils.getTime(date));
+                        fileManager.saveDateDepart(date, false);
+                        fullLenght.setText(fileManager.getFullLenght());
+                        halfDay.setEnabled(false);
+                    }
                 }
-            }
-        });
+            });
+        }
 
 
         if (!fullLenght.getText().equals("-")){

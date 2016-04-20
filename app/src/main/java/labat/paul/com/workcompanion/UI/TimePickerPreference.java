@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TimePicker;
@@ -17,7 +18,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 public class TimePickerPreference extends DialogPreference {
-    private Calendar calendar;
+    public Calendar calendar;
     private TimePicker picker = null;
 
     public TimePickerPreference(Context ctxt) {
@@ -46,10 +47,8 @@ public class TimePickerPreference extends DialogPreference {
     protected void onBindDialogView(View v) {
         super.onBindDialogView(v);
         picker.setIs24HourView(true);
-
         picker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
         picker.setCurrentMinute(calendar.get(Calendar.MINUTE));
-
     }
 
     @Override
@@ -60,10 +59,7 @@ public class TimePickerPreference extends DialogPreference {
             calendar.set(Calendar.HOUR_OF_DAY, picker.getCurrentHour());
             calendar.set(Calendar.MINUTE, picker.getCurrentMinute());
             setSummary(getSummary());
-            if (callChangeListener(calendar.getTimeInMillis())) {
-                persistString(calendar.getTimeInMillis() + "");
-                notifyChanged();
-            }
+
         }
     }
 
@@ -75,19 +71,15 @@ public class TimePickerPreference extends DialogPreference {
     @Override
     protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
 
-        if (restoreValue) {
-            if (defaultValue == null) {
-                calendar.setTimeInMillis(Long.parseLong(getPersistedString(System.currentTimeMillis()+"")));
-            } else {
-                calendar.setTimeInMillis(Long.parseLong(getPersistedString((String) defaultValue)));
-            }
-        } else {
-            if (defaultValue == null) {
-                calendar.setTimeInMillis(System.currentTimeMillis());
-            } else {
-                calendar.setTimeInMillis(Long.parseLong((String) defaultValue));
+        if (restoreValue){
+        }else{
+            if (defaultValue != null){
+                String [] tmp = ((String)defaultValue).split(":");
+                calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(tmp[0]));
+                calendar.set(Calendar.MINUTE, Integer.parseInt(tmp[1]));
             }
         }
+        persistString(calendar.get(Calendar.HOUR_OF_DAY)+":"+calendar.get(Calendar.MINUTE));
         setSummary(getSummary());
     }
 
